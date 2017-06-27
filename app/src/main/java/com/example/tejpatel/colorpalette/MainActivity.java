@@ -13,8 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import static android.R.attr.bitmap;
 
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView photo;
 
     private Button chooseImageFromGalleryButton;
+    private Button createPaletteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,26 +52,8 @@ public class MainActivity extends AppCompatActivity {
         photo = (ImageView) findViewById(R.id.photo);
 
         chooseImageFromGalleryButton = (Button) findViewById(R.id.choose_from_gallery_button);
+        createPaletteButton = (Button) findViewById(R.id.create_palette_button);
 
-        // Cast the photo in the ImageView as a BitmapDrawable and get bitmap from it
-        Bitmap bitmap = ((BitmapDrawable)photo.getDrawable()).getBitmap();;
-
-        // If the bitmap is not empty, asynchronously create a palette
-        if (bitmap != null) {
-            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-                // Override the onGenerated method. Takes the generated palette as a parameter and
-                // passes the palette and view ID and text to the setViewSwatch method
-                @Override
-                public void onGenerated(Palette palette) {
-                    setViewSwatch(vibrant, palette.getVibrantSwatch(), "Vibrant: " + Integer.toHexString(palette.getVibrantSwatch().getRgb() & 0x00ffffff));
-                    setViewSwatch(vibrantLight, palette.getLightVibrantSwatch(), "Light Vibrant: " + Integer.toHexString(palette.getLightVibrantSwatch().getRgb() & 0x00ffffff));
-                    setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: " + Integer.toHexString(palette.getDarkVibrantSwatch().getRgb() & 0x00ffffff));
-                    setViewSwatch(muted, palette.getMutedSwatch(), "Muted: " + Integer.toHexString(palette.getMutedSwatch().getRgb() & 0x00ffffff));
-                    setViewSwatch(mutedLight, palette.getLightMutedSwatch(), "Light Muted: " + Integer.toHexString(palette.getLightMutedSwatch().getRgb() & 0x00ffffff));
-                    setViewSwatch(mutedDark, palette.getDarkMutedSwatch(), "Muted Dark: " + Integer.toHexString(palette.getDarkMutedSwatch().getRgb() & 0x00ffffff));
-                }
-            });
-        }
 
         chooseImageFromGalleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +62,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        createPaletteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createPalette();
+            }
+        });
+
+
+    }
+
+    private void createPalette() {
+        // Cast the photo in the ImageView as a BitmapDrawable and get bitmap from it
+        Bitmap bitmap = ((BitmapDrawable)photo.getDrawable()).getBitmap();
+
+        // If the bitmap is not empty, asynchronously create a palette
+        if (bitmap != null) {
+            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                // Override the onGenerated method. Takes the generated palette as a parameter and
+                // passes the palette and view ID and text to the setViewSwatch method
+                @Override
+                public void onGenerated(Palette palette) {
+                    setViewSwatch(vibrant, palette.getVibrantSwatch(), "Vibrant: #" + Integer.toHexString(palette.getVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    setViewSwatch(vibrantLight, palette.getLightVibrantSwatch(), "Light Vibrant: #" + Integer.toHexString(palette.getLightVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: #" + Integer.toHexString(palette.getDarkVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    setViewSwatch(muted, palette.getMutedSwatch(), "Muted: #" + Integer.toHexString(palette.getMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    setViewSwatch(mutedLight, palette.getLightMutedSwatch(), "Light Muted: #" + Integer.toHexString(palette.getLightMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    setViewSwatch(mutedDark, palette.getDarkMutedSwatch(), "Muted Dark: #" + Integer.toHexString(palette.getDarkMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                }
+            });
+        }
     }
 
     // Method for getting swatch for palette and assigning the color to the corresponding textview
@@ -104,4 +120,34 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(picturePickerIntent, IMAGE_REQUEST_CODE);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            // If we pass this if statement, everything was processed successfully
+            if (requestCode == IMAGE_REQUEST_CODE) {
+                // If we are here, we are hearing from the image gallery
+
+                // The address of the image on the SD card
+                Uri imageUri = data.getData();
+
+                // Declare a stream to read the image data from the SD card
+                InputStream inputStream;
+
+                // Here we are getting an input stream based on the URI of the image
+                try {
+                    inputStream = getContentResolver().openInputStream(imageUri);
+
+                    // Gets bitmap from the stream
+                    Bitmap image = BitmapFactory.decodeStream(inputStream);
+
+                    // Show image from SD card in the ImageView
+                    photo.setImageBitmap(image);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    // Show toast to user if any exception is caught
+                    Toast.makeText(this, "Unable to open image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 }

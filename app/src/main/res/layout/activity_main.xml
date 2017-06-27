@@ -161,11 +161,24 @@
         </com.github.clans.fab.FloatingActionMenu>
         -->
 
-        <Button
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose from gallery"
-            android:id="@+id/choose_from_gallery_button" />
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose from gallery"
+                android:id="@+id/choose_from_gallery_button" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Palette"
+                android:id="@+id/create_palette_button" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 
