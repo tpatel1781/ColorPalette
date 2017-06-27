@@ -1,18 +1,26 @@
 package com.example.tejpatel.colorpalette;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.File;
 
 import static android.R.attr.bitmap;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final int IMAGE_REQUEST_CODE = 20;
     // Instantiating hexcode textviews
     private TextView vibrant;
     private TextView vibrantDark;
@@ -23,43 +31,77 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView photo;
 
+    private Button chooseImageFromGalleryButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         vibrant = (TextView) findViewById(R.id.vibrant_text_view);
-        vibrantDark = (TextView) findViewById(R.id.vibrant_dark_text_view);
         vibrantLight = (TextView) findViewById(R.id.vibrant_light_text_view);
+        vibrantDark = (TextView) findViewById(R.id.vibrant_dark_text_view);
         muted = (TextView) findViewById(R.id.muted_text_view);
-        mutedDark = (TextView) findViewById(R.id.muted_dark_text_view);
         mutedLight = (TextView) findViewById(R.id.muted_light_text_view);
+        mutedDark = (TextView) findViewById(R.id.muted_dark_text_view);
 
         photo = (ImageView) findViewById(R.id.photo);
 
+        chooseImageFromGalleryButton = (Button) findViewById(R.id.choose_from_gallery_button);
+
+        // Cast the photo in the ImageView as a BitmapDrawable and get bitmap from it
         Bitmap bitmap = ((BitmapDrawable)photo.getDrawable()).getBitmap();;
 
+        // If the bitmap is not empty, asynchronously create a palette
         if (bitmap != null) {
             Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                // Override the onGenerated method. Takes the generated palette as a parameter and
+                // passes the palette and view ID and text to the setViewSwatch method
                 @Override
                 public void onGenerated(Palette palette) {
-                    setViewSwatch(vibrant, palette.getVibrantSwatch(), "Vibrant");
-                    setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant");
-                    setViewSwatch(vibrantLight, palette.getLightVibrantSwatch(), "Light Vibrant");
-                    setViewSwatch(muted, palette.getMutedSwatch(), "Muted");
-                    setViewSwatch(mutedDark, palette.getDarkMutedSwatch(), "Dark Muted");
-                    setViewSwatch(mutedLight, palette.getLightMutedSwatch(), "Light Muted");
+                    setViewSwatch(vibrant, palette.getVibrantSwatch(), "Vibrant: " + Integer.toHexString(palette.getVibrantSwatch().getRgb() & 0x00ffffff));
+                    setViewSwatch(vibrantLight, palette.getLightVibrantSwatch(), "Light Vibrant: " + Integer.toHexString(palette.getLightVibrantSwatch().getRgb() & 0x00ffffff));
+                    setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: " + Integer.toHexString(palette.getDarkVibrantSwatch().getRgb() & 0x00ffffff));
+                    setViewSwatch(muted, palette.getMutedSwatch(), "Muted: " + Integer.toHexString(palette.getMutedSwatch().getRgb() & 0x00ffffff));
+                    setViewSwatch(mutedLight, palette.getLightMutedSwatch(), "Light Muted: " + Integer.toHexString(palette.getLightMutedSwatch().getRgb() & 0x00ffffff));
+                    setViewSwatch(mutedDark, palette.getDarkMutedSwatch(), "Muted Dark: " + Integer.toHexString(palette.getDarkMutedSwatch().getRgb() & 0x00ffffff));
                 }
             });
         }
+
+        chooseImageFromGalleryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onChooseImageButtonClicked(chooseImageFromGalleryButton);
+            }
+        });
+
     }
 
+    // Method for getting swatch for palette and assigning the color to the corresponding textview
     private void setViewSwatch(TextView view, Palette.Swatch swatch, final String title) {
         if (swatch != null) {
             // Set the background color of the textview based on the vibrant color
             view.setBackgroundColor(swatch.getRgb());
+            // Set text of the textview to match the name for each color in the palette
             view.setText(title);
         }
+    }
+
+    public void onChooseImageButtonClicked(View v) {
+        // Invoke the image gallery with implicit intent
+        Intent picturePickerIntent = new Intent(Intent.ACTION_PICK);
+
+        // Where to get file from
+        File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String pictureDirectoryPath = pictureDirectory.getPath();
+
+        // Get URI representation of string path
+        Uri data = Uri.parse(pictureDirectoryPath);
+
+        // Set data and type to look for. Set to look for all image types: jpeg, jpg, png, gif
+        picturePickerIntent.setDataAndType(data, "image/*");
+        startActivityForResult(picturePickerIntent, IMAGE_REQUEST_CODE);
     }
 
 }
