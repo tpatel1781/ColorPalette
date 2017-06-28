@@ -3,6 +3,7 @@ package com.example.tejpatel.colorpalette;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
@@ -20,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static android.R.attr.bitmap;
+import static android.R.color.black;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,9 +50,7 @@ public class MainActivity extends AppCompatActivity {
         muted = (TextView) findViewById(R.id.muted_text_view);
         mutedLight = (TextView) findViewById(R.id.muted_light_text_view);
         mutedDark = (TextView) findViewById(R.id.muted_dark_text_view);
-
         photo = (ImageView) findViewById(R.id.photo);
-
         chooseImageFromGalleryButton = (Button) findViewById(R.id.choose_from_gallery_button);
         createPaletteButton = (Button) findViewById(R.id.create_palette_button);
 
@@ -68,13 +68,11 @@ public class MainActivity extends AppCompatActivity {
                 createPalette();
             }
         });
-
-
     }
 
     private void createPalette() {
         // Cast the photo in the ImageView as a BitmapDrawable and get bitmap from it
-        Bitmap bitmap = ((BitmapDrawable)photo.getDrawable()).getBitmap();
+        Bitmap bitmap = ((BitmapDrawable) photo.getDrawable()).getBitmap();
 
         // If the bitmap is not empty, asynchronously create a palette
         if (bitmap != null) {
@@ -83,12 +81,42 @@ public class MainActivity extends AppCompatActivity {
                 // passes the palette and view ID and text to the setViewSwatch method
                 @Override
                 public void onGenerated(Palette palette) {
-                    setViewSwatch(vibrant, palette.getVibrantSwatch(), "Vibrant: #" + Integer.toHexString(palette.getVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
-                    setViewSwatch(vibrantLight, palette.getLightVibrantSwatch(), "Light Vibrant: #" + Integer.toHexString(palette.getLightVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
-                    setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: #" + Integer.toHexString(palette.getDarkVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
-                    setViewSwatch(muted, palette.getMutedSwatch(), "Muted: #" + Integer.toHexString(palette.getMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
-                    setViewSwatch(mutedLight, palette.getLightMutedSwatch(), "Light Muted: #" + Integer.toHexString(palette.getLightMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
-                    setViewSwatch(mutedDark, palette.getDarkMutedSwatch(), "Muted Dark: #" + Integer.toHexString(palette.getDarkMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    // If/else statement for each swatch to handle possible null pointer exception
+                    // If swatch cannot be found, change text to "Vibrant swatch not found"
+                    if (palette.getVibrantSwatch() != null) {
+                        setViewSwatch(vibrant, palette.getVibrantSwatch(), "Vibrant: #" + Integer.toHexString(palette.getVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    } else {
+                        setNullViewSwatch(vibrant, "Vibrant swatch not found");
+                    }
+
+                    if (palette.getLightVibrantSwatch() != null) {
+                        setViewSwatch(vibrantLight, palette.getLightVibrantSwatch(), "Light Vibrant: #" + Integer.toHexString(palette.getLightVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    } else {
+                        setNullViewSwatch(vibrantLight, "Light vibrant swatch not found");
+                    }
+
+                    if (palette.getDarkVibrantSwatch() != null) {
+                        setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: #" + Integer.toHexString(palette.getDarkVibrantSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    } else {
+                        setNullViewSwatch(vibrantDark, "Dark vibrant swatch not found");
+                    }
+                    if (palette.getMutedSwatch() != null) {
+                        setViewSwatch(muted, palette.getMutedSwatch(), "Muted: #" + Integer.toHexString(palette.getMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    } else {
+                        setNullViewSwatch(muted, "Muted swatch not found");
+                    }
+
+                    if (palette.getLightMutedSwatch() != null) {
+                        setViewSwatch(mutedLight, palette.getLightMutedSwatch(), "Light Muted: #" + Integer.toHexString(palette.getLightMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    } else {
+                        setNullViewSwatch(mutedLight, "Light muted swatch not found");
+                    }
+
+                    if (palette.getDarkMutedSwatch() != null) {
+                        setViewSwatch(mutedDark, palette.getDarkMutedSwatch(), "Muted Dark: #" + Integer.toHexString(palette.getDarkMutedSwatch().getRgb() & 0x00ffffff).toUpperCase());
+                    } else {
+                        setNullViewSwatch(mutedDark, "Dark muted swatch not found");
+                    }
                 }
             });
         }
@@ -102,6 +130,15 @@ public class MainActivity extends AppCompatActivity {
             // Set text of the textview to match the name for each color in the palette
             view.setText(title);
         }
+    }
+
+    // Method for setting textview background to black and printing out swatch not found message
+    // to user if getSwatch() method returns null
+    private void setNullViewSwatch(TextView view, final String title) {
+        // Set textview background color to black
+        view.setBackgroundResource(R.color.black);
+        // Set textview text
+        view.setText(title);
     }
 
     public void onChooseImageButtonClicked(View v) {
