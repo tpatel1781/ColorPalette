@@ -14,9 +14,8 @@
 
         <ImageView
             android:id="@+id/photo"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="250sp"
-            android:src="@drawable/brady"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
