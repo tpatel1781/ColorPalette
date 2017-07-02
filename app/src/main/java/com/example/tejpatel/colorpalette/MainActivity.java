@@ -229,6 +229,9 @@ public class MainActivity extends AppCompatActivity {
                         String mutedHexcode = "#" + Integer.toHexString(palette.getMutedSwatch().getRgb()).toUpperCase().substring(2, 8);
                         setViewSwatch(muted, palette.getMutedSwatch(), "Muted: " + mutedHexcode);
 
+                        // If a muted color exists, set the ImageView background to the muted color
+                        photo.setBackgroundColor(Color.parseColor(mutedHexcode));
+
                         // If there is no vibrant, light vibrant, or dark vibrant swatch then change ActionBar color to muted
                         if (palette.getVibrantSwatch() == null && palette.getLightVibrantSwatch() == null && palette.getDarkVibrantSwatch() == null) {
                             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mutedHexcode)));
@@ -254,6 +257,11 @@ public class MainActivity extends AppCompatActivity {
                             setFloatingActionButtonColor(lightMutedHexcode);
                         }
 
+                        // If there is no muted color, set the ImageView background color to light muted
+                        if (palette.getMutedSwatch() == null) {
+                            photo.setBackgroundColor(Color.parseColor(lightMutedHexcode));
+                        }
+
                     } else {
                         setNullViewSwatch(mutedLight, "Light muted swatch not found");
                     }
@@ -270,6 +278,12 @@ public class MainActivity extends AppCompatActivity {
                             // Set fabMenu button color to dark muted
                             setFloatingActionButtonColor(darkMutedHexcode);
                         }
+
+                        // If there is no muted or light muted color, set the ImageView background color to dark muted
+                        if (palette.getMutedSwatch() == null && palette.getLightMutedSwatch() == null) {
+                            photo.setBackgroundColor(Color.parseColor(darkMutedHexcode));
+                        }
+
                     } else {
                         setNullViewSwatch(mutedDark, "Dark muted swatch not found");
 
