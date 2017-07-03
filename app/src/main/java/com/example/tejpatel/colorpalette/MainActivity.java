@@ -186,6 +186,12 @@ public class MainActivity extends AppCompatActivity {
 
                         // Change fabMenu button colors to vibrant color
                         setFloatingActionButtonColor(vibrantHexcode);
+
+                        if (palette.getDarkVibrantSwatch() == null) {
+                            // If there is no dark vibrant color, set status bar color to vibrant
+                            // Only works past API level 21, current min 15
+                            getWindow().setStatusBarColor(Color.parseColor(vibrantHexcode));
+                        }
                     } else {
                         setNullViewSwatch(vibrant, "Vibrant swatch not found");
                     }
@@ -213,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
                         setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: " + darkVibrantHexcode);
 
                         // If there is a dark muted palette color then set the status bar color to it
+                        // Only works past API level 21, current min 15
                         getWindow().setStatusBarColor(Color.parseColor(darkVibrantHexcode));
 
                         // If there is no vibrant or light vibrant swatch then change ActionBar color to dark vibrant
