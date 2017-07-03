@@ -212,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
                         String darkVibrantHexcode = "#" + Integer.toHexString(palette.getDarkVibrantSwatch().getRgb()).toUpperCase().substring(2, 8);
                         setViewSwatch(vibrantDark, palette.getDarkVibrantSwatch(), "Dark Vibrant: " + darkVibrantHexcode);
 
+                        // If there is a dark muted palette color then set the status bar color to it
+                        getWindow().setStatusBarColor(Color.parseColor(darkVibrantHexcode));
+
                         // If there is no vibrant or light vibrant swatch then change ActionBar color to dark vibrant
                         if (palette.getVibrantSwatch() == null && palette.getLightVibrantSwatch() == null) {
                             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(darkVibrantHexcode)));
