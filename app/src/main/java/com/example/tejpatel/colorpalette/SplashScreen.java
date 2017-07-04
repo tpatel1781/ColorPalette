@@ -16,8 +16,8 @@ public class SplashScreen extends AppCompatActivity {
             public void run() {
                 try {
 
-                    // Splash screen will remain on screen for 2 seconds
-                    sleep(2000);
+                    // Splash screen will remain on screen for 1 second
+                    sleep(1000);
 
                     // Intent to open MainActivity after splash screen
                     Intent splashScreenIntent = new Intent(getApplicationContext(), MainActivity.class);
